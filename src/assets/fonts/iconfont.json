@@ -1,0 +1,23 @@
+{
+  "id": "2032629",
+  "name": "vue-bili",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "702578",
+      "name": "gender-female",
+      "font_class": "genderfemale",
+      "unicode": "e891",
+      "unicode_decimal": 59537
+    },
+    {
+      "icon_id": "1444652",
+      "name": "gender-male",
+      "font_class": "gender-male",
+      "unicode": "e77d",
+      "unicode_decimal": 59261
+    }
+  ]
+}

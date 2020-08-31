@@ -5,8 +5,15 @@ import store from './store'
 
 import 'normalize.css'
 import 'assets/css/base.css'
+import 'assets/fonts/iconfont.css'
+
+import 'plugins/vant'
+
+import http from 'network/http'
 
 Vue.config.productionTip = false
+
+Vue.prototype.$http = http
 
 new Vue({
   router,

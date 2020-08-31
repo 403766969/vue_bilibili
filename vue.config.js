@@ -12,6 +12,7 @@ module.exports = {
       .set('common', resolve('./src/common'))
       .set('components', resolve('./src/components'))
       .set('network', resolve('./src/network'))
+      .set('plugins', resolve('./src/plugins'))
       .set('views', resolve('./src/views'))
   },
   devServer: {
