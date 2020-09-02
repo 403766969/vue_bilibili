@@ -1,5 +1,4 @@
 import axios from 'axios'
-import Vue from 'vue'
 
 // 创建axios实例
 const http = axios.create({
@@ -21,7 +20,7 @@ http.interceptors.request.use(config => {
 http.interceptors.response.use(res => {
   return res
 }, err => {
-  Vue.prototype.$toast.fail(err.response.data.message)
+  console.dir(err)
   return Promise.reject(err)
 })
 

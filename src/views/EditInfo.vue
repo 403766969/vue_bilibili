@@ -4,6 +4,7 @@
     <path-nav-bar :center="{ text: '编辑资料', isScrollable: false }" />
     <!-- 内容区 -->
     <div class="edit-info-content">
+      <!-- 信息显示区 -->
       <van-cell-group>
         <van-cell title="头像" value="内容" center @click="$refs.uploader.chooseFile()">
           <template #default>
@@ -83,16 +84,18 @@ export default {
     }
   },
   methods: {
+    // 上传头像
     async afterRead(file) {
       const formData = new FormData()
       formData.append('file', file.file)
       const { data: res } = await uploadAvatar(formData)
       this.userInfo.user_img = res.url
     },
+    // 选择头像
     handleSelect(item, index) {
       this.userInfo.gender = item.value
-      this.genders[index].color = '#ee0a24'
     },
+    // 保存信息
     async handleSave() {
       const userId = window.localStorage.getItem('userId')
       const userToken = window.localStorage.getItem('userToken')
@@ -108,6 +111,7 @@ export default {
     }
   },
   created() {
+    // 获取登录用户的信息
     this.getUserInfo()
   }
 }

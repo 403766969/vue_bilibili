@@ -1,11 +1,15 @@
 <template>
   <div class="user-info">
+    <!-- 顶部显示区 -->
     <div class="content-top">
+      <!-- 用户头像 -->
       <div class="user-avatar">
         <img v-if="userInfo.user_img" :src="userInfo.user_img " />
         <img v-else src="~assets/img/default_img.jpg" />
       </div>
+      <!-- 用户热度 -->
       <div class="user-follow">
+        <!-- 热度统计 -->
         <div class="user-statistics">
           <p>
             <span>11</span>
@@ -20,17 +24,21 @@
             <span>获赞</span>
           </p>
         </div>
+        <!-- 编辑资料 -->
         <div class="user-edit" @click="$router.push('/editinfo')">编辑资料</div>
       </div>
     </div>
+    <!-- 底部显示区 -->
     <div class="content-bottom">
       <div class="user-base">
+        <!-- 用户昵称 -->
         <p class="user-nickname">
           <span>{{userInfo.name}}</span>
           <i v-if="userInfo.gender === '1'" class="iconfont icon-gender-male"></i>
           <i v-else-if="userInfo.gender === '0'" class="iconfont icon-genderfemale"></i>
           <i class="user-level">LV3</i>
         </p>
+        <!-- 用户简介 -->
         <p class="user-introduction" v-if="userInfo.user_desc">
           <span>{{userInfo.user_desc}}</span>
         </p>

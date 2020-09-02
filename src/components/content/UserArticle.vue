@@ -1,9 +1,11 @@
 <template>
   <div class="user-article">
+    <!-- 动态和视频标签区 -->
     <div class="article-type">
       <span :class="{ active: current === 'news' }" @click="current = 'news'">动态</span>
       <span :class="{ active: current === 'videos' }" @click="current = 'videos'">视频</span>
     </div>
+    <!-- 动态和视频内容区 -->
     <div class="article-content">
       <div v-show="current === 'news'">
         <van-empty description="暂无动态" />

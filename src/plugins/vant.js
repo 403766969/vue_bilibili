@@ -9,8 +9,11 @@ import {
   Field,
   Form,
   Icon,
+  Lazyload,
   List,
   NoticeBar,
+  Pagination,
+  Search,
   Swipe,
   SwipeItem,
   Tab,
@@ -28,8 +31,13 @@ Vue.use(Empty)
 Vue.use(Field)
 Vue.use(Form)
 Vue.use(Icon)
+Vue.use(Lazyload, {
+  loading: require('assets/img/loading.gif')
+})
 Vue.use(List)
 Vue.use(NoticeBar)
+Vue.use(Pagination)
+Vue.use(Search)
 Vue.use(Swipe)
 Vue.use(SwipeItem)
 Vue.use(Tab)

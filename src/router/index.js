@@ -7,6 +7,7 @@ const Register = () => import('views/Register')
 const Login = () => import('views/Login')
 const Home = () => import('views/Home')
 const VideoDetail = () => import('views/VideoDetail')
+const Search = () => import('views/Search')
 const UserSpace = () => import('views/UserSpace')
 const EditInfo = () => import('views/EditInfo')
 
@@ -66,6 +67,16 @@ const routes = [
       keepAlive: false
     },
     component: VideoDetail
+  },
+  {
+    path: '/search',
+    name: 'Search',
+    meta: {
+      title: '搜索',
+      needLogin: false,
+      keepAlive: false
+    },
+    component: Search
   },
   {
     path: '/userspace',

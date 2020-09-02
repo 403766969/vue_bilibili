@@ -7,6 +7,7 @@ export const getUserInfo = {
     }
   },
   methods: {
+    // 获取登录用户的信息
     async getUserInfo() {
       const userId = window.localStorage.getItem('userId')
       const { data: res } = await getUserInfoApi(userId)

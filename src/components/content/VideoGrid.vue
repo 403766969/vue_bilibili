@@ -1,5 +1,6 @@
 <template>
   <div class="video-grid">
+    <!-- 视频项 -->
     <video-item
       v-for="item in videoList"
       :key="item.id"

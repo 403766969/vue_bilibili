@@ -4,7 +4,10 @@
     <search-nav-bar message="请输入关键字" :avatar="userInfo.user_img ? userInfo.user_img : ''" />
     <!-- 内容区 -->
     <div class="home-content">
-      <van-tabs v-model="currentIndex" offset-top="11.733vw" animated sticky swipeable>
+      <!-- 分区折叠面板 -->
+      <collapse-panle :option-list="categoryTitleList" @select="handleSelect" />
+      <!-- 分区标签页 -->
+      <van-tabs v-model="currentIndex" animated swipeable>
         <van-tab v-for="item in categoryList" :key="item._id" :title="item.title">
           <van-list
             v-model="item.loading"
@@ -13,6 +16,7 @@
             finished-text="暂无更多"
             @load="onLoad"
           >
+            <!-- 首页轮播图 -->
             <van-swipe v-if="item.title === '首页'" indicator-color="white" :autoplay="3000">
               <van-swipe-item
                 v-for="swipeItem in swipeImgList"
@@ -22,7 +26,7 @@
                 <img :src="swipeItem.src" />
               </van-swipe-item>
             </van-swipe>
-
+            <!-- 视频显示区 -->
             <video-grid :video-list="item.videoList" />
           </van-list>
         </van-tab>
@@ -33,6 +37,7 @@
 
 <script>
 import SearchNavBar from 'components/content/SearchNavBar'
+import CollapsePanle from 'components/content/CollapsePanle'
 import VideoGrid from 'components/content/VideoGrid'
 
 import { getUserInfo } from 'common/mixin'
@@ -44,6 +49,7 @@ export default {
   mixins: [getUserInfo],
   components: {
     SearchNavBar,
+    CollapsePanle,
     VideoGrid
   },
   data() {
@@ -79,7 +85,14 @@ export default {
       ]
     }
   },
+  computed: {
+    // 分区标题列表
+    categoryTitleList() {
+      return this.categoryList.map(item => item.title)
+    }
+  },
   methods: {
+    // 获取分区列表
     async getCategoryList() {
       const { data: res } = await getCategoryListApi()
       this.categoryList = res.map(item => {
@@ -91,11 +104,12 @@ export default {
         return item
       })
     },
+    // 获取视频列表
     async getVideoList() {
       const item = this.categoryList[this.currentIndex]
       const categoryId = item._id
       const params = {
-        page: item.page,
+        page: item.page++,
         pagesize: item.pagesize
       }
       const { data: res } = await getVideoListApi(categoryId, params)
@@ -103,24 +117,31 @@ export default {
       if (res.length < item.pagesize) {
         item.finished = true
       }
-      item.page++
       setTimeout(() => {
         item.loading = false
       }, 1000)
     },
+    // 上拉加载视频
     onLoad() {
       this.getVideoList()
+    },
+    // 选择分区
+    handleSelect(index) {
+      this.currentIndex = index
     }
   },
   created() {
+    // 获取登录用户的信息
     const userId = window.localStorage.getItem('userId')
     const userToken = window.localStorage.getItem('userToken')
     if (userId && userToken) {
       this.getUserInfo()
     }
+    // 获取分区列表
     this.getCategoryList()
   },
   activated() {
+    // 路由激活，获取登录用户的信息
     const userId = window.localStorage.getItem('userId')
     const userToken = window.localStorage.getItem('userToken')
     if (userId && userToken) {
@@ -135,6 +156,26 @@ export default {
 <style lang="less" scoped>
 #home {
   padding-top: 44px;
+}
+
+.home-content {
+  position: relative;
+  .collapse-panle {
+    position: fixed;
+    top: 88px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    z-index: 9999;
+  }
+}
+
+/deep/.van-tabs__wrap {
+  position: sticky;
+  top: 44px;
+  z-index: 999;
+  padding: 0px 40px 0px 10px;
+  background-color: #fff;
 }
 
 .van-swipe {

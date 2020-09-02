@@ -1,15 +1,18 @@
 <template>
   <div class="search-nav-bar">
     <nav-bar>
+      <!-- 左侧导航 -->
       <template #nar-bar-left>
         <img src="~assets/img/logo.png" @click="$router.go(0)" />
       </template>
+      <!-- 中部导航 -->
       <template #nar-bar-center>
-        <div>
+        <div @click="$router.push('/search')">
           <van-icon name="search" />
           <span>{{message}}</span>
         </div>
       </template>
+      <!-- 右侧导航 -->
       <template #nar-bar-right>
         <img v-if="avatar" :src="avatar" @click="$router.push('/userspace')" />
         <img v-else src="~assets/img/default_img.jpg" @click="$router.push('/userspace')" />
@@ -30,7 +33,7 @@ export default {
   props: {
     message: {
       type: String,
-      default: ''
+      default: '请输入关键字'
     },
     avatar: {
       type: String,
@@ -38,6 +41,7 @@ export default {
     }
   },
   methods: {
+    // 下载App按钮，实际注销当前登录用户
     handleDownload() {
       this.$dialog
         .confirm({

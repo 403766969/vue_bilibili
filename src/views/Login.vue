@@ -36,7 +36,7 @@
             @click="isShowPassword = !isShowPassword"
           />
         </div>
-        <van-button round block type="info" native-type="submit">登录</van-button>
+        <van-button round block type="info" color="#ff9db5" native-type="submit">登录</van-button>
       </van-form>
     </div>
   </div>
@@ -62,6 +62,7 @@ export default {
     }
   },
   methods: {
+    // 提交登录表单
     async handleSubmit(val) {
       const { data: res } = await loginApi(val)
       if (res.code !== 200) {
@@ -101,8 +102,6 @@ export default {
     width: 90%;
     font-size: 16px;
     color: #fff;
-    background-color: #ff9db5;
-    border: none;
   }
 }
 </style>

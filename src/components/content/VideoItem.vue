@@ -1,8 +1,11 @@
 <template>
   <div class="video-item">
     <div class="item-content">
-      <img class="item-cover" :src="item.img" />
+      <!-- 视频封面 -->
+      <img class="item-cover" v-lazy="item.img" />
+      <!-- 视频标题 -->
       <div class="item-title van-ellipsis">{{item.name}}</div>
+      <!-- 视频热度 -->
       <div class="item-heat">
         <p>
           <van-icon name="video-o" />

@@ -6,7 +6,8 @@
       :left="{ text: '主页', to: '/home' }"
     />
     <!-- 内容区 -->
-    <div class="video-detail-content">
+    <div class="video-detail-content" ref="contentRef">
+      <!-- 视频播放器 -->
       <!-- <video :src="videoInfo.src" :poster="videoInfo.poster" controls></video> -->
       <video-player
         class="video-player"
@@ -14,17 +15,21 @@
         :playsinline="true"
         :options="playerOptions"
       />
-      <van-tabs animated swipeable>
+      <!-- 简介和评论标签页 -->
+      <van-tabs animated swipeable ref="vanTabsRef">
         <van-tab title="简介">
           <div class="info-content">
+            <!-- 作者信息 -->
             <div class="info-author">
               <img class="border-px-to-vw-ignore" :src="authorInfo.user_img" />
               <span>{{authorInfo.name}}</span>
             </div>
+            <!-- 视频简介 -->
             <div class="info-base">
               <i>{{videoInfo.category}}</i>
               <span class="van-ellipsis">{{videoInfo.name}}</span>
             </div>
+            <!-- 视频热度 -->
             <div class="info-heat">
               <p>
                 <van-icon name="video-o" />
@@ -39,6 +44,7 @@
                 <span>{{videoInfo.date}}</span>
               </p>
             </div>
+            <!-- 用户操作 -->
             <div class="info-follow">
               <p>
                 <van-icon :name="isLike ? 'like' : 'like-o'" @click="handleLike" />
@@ -54,15 +60,37 @@
               </p>
             </div>
           </div>
+          <!-- 推荐列表 -->
           <video-grid :video-list="recommendList" />
         </van-tab>
         <van-tab title="评论">
-          <p>评论</p>
-          <p>评论</p>
-          <p>评论</p>
-          <p>评论</p>
-          <p>评论</p>
-          <p>评论</p>
+          <!-- 发表评论 -->
+          <div class="publish-comment">
+            <img v-if="userInfo.user_img" :src="userInfo.user_img" />
+            <img v-else src="~assets/img/default_img.jpg" />
+            <van-field v-model="commentInput" placeholder="说点什么吧" />
+            <van-button type="info" color="#ffafc9" round @click="handlePublish">发表</van-button>
+          </div>
+          <!-- 回复评论 -->
+          <div class="relpy-comment">
+            <p class="reply-label">{{replyLabel}}</p>
+            <van-field v-model="replyInput" ref="replyRef" placeholder="回复点什么吧" />
+            <van-button type="info" color="#ffafc9" round @click="handleReply">回复</van-button>
+          </div>
+          <!-- 评论显示区 -->
+          <comment :comment-list="showCommentList" @replyComment="replyComment" />
+          <!-- 分页区 -->
+          <van-pagination
+            v-if="commentList.length > commentPageSize"
+            prev-text="<"
+            next-text=">"
+            v-model="commentPage"
+            :total-items="commentList.length"
+            :items-per-page="commentPageSize"
+            :show-page-size="commentShowPage"
+            force-ellipses
+            @change="hanldeChange"
+          />
         </van-tab>
       </van-tabs>
     </div>
@@ -72,9 +100,12 @@
 <script>
 import PathNavBar from 'components/content/PathNavBar'
 import VideoGrid from 'components/content/VideoGrid'
+import Comment from 'components/content/Comment'
 
 import 'video.js/dist/video-js.css'
 import { videoPlayer } from 'vue-video-player'
+
+import { getUserInfo } from 'common/mixin'
 
 import {
   getVideoDetailApi,
@@ -82,14 +113,18 @@ import {
   likeAuthorApi,
   starVideoApi,
   getLikeStatusApi,
-  getStarStatusApi
+  getStarStatusApi,
+  getCommentListApi,
+  publishCommentApi
 } from 'network/api'
 
 export default {
   name: 'VideoDetail',
+  mixins: [getUserInfo],
   components: {
     PathNavBar,
     VideoGrid,
+    Comment,
     videoPlayer
   },
   data() {
@@ -127,14 +162,31 @@ export default {
       },
       authorInfo: {},
       recommendList: [],
+      commentList: [],
+      commentPage: 1,
+      commentPageSize: 10,
+      commentShowPage: 5,
+      commentInput: '',
+      replyInput: '',
+      replyLabel: '',
+      replyItem: {},
+      scrollTop: 0,
       isLike: false,
       isStar: false
     }
   },
+  computed: {
+    // 显示的评论列表
+    showCommentList() {
+      const start = (this.commentPage - 1) * this.commentPageSize
+      const end = this.commentPage * this.commentPageSize
+      return this.commentList.slice(start, end)
+    }
+  },
   methods: {
+    // 获取视频列表
     async getVideoDetail() {
-      // const { data: res } = await getVideoDetailApi(this.$route.params.id)
-      const { data: res } = await getVideoDetailApi(23)
+      const { data: res } = await getVideoDetailApi(this.$route.params.id)
       this.videoInfo.src = res[0].content
       this.videoInfo.poster = res[0].img
       this.videoInfo.category = res[0].category.title
@@ -152,10 +204,12 @@ export default {
         this.initStarStatus()
       }
     },
+    // 获取推荐列表
     async getRecommendList() {
       const { data: res } = await getRecommendListApi('/commend')
       this.recommendList = res
     },
+    // 关注
     async handleLike() {
       const userId = window.localStorage.getItem('userId')
       const userToken = window.localStorage.getItem('userToken')
@@ -172,6 +226,7 @@ export default {
       this.isLike = !this.isLike
       this.$toast.success(res.msg)
     },
+    // 收藏
     async handleStar() {
       const userId = window.localStorage.getItem('userId')
       const userToken = window.localStorage.getItem('userToken')
@@ -188,6 +243,7 @@ export default {
       this.isStar = !this.isStar
       this.$toast.success(res.msg)
     },
+    // 获取关注状态
     async initLikeStatus() {
       const userId = window.localStorage.getItem('userId')
       const params = {
@@ -199,6 +255,7 @@ export default {
       }
       this.isLike = res.success
     },
+    // 获取收藏状态
     async initStarStatus() {
       const userId = window.localStorage.getItem('userId')
       const params = {
@@ -209,11 +266,145 @@ export default {
         return this.$toast.fail('获取收藏状态失败')
       }
       this.isStar = res.success
+    },
+    // 获取评论列表
+    async getCommentList() {
+      const { data: res } = await getCommentListApi(this.$route.params.id)
+      const primaryCommentList = res.filter(item => {
+        if (item.parent_id === null) {
+          item.child = []
+          return true
+        }
+        return false
+      })
+      res.forEach(item => {
+        if (item.parent_id !== null) {
+          const primaryComment = this.findPrimaryComment(res, item.comment_id)
+          if (primaryComment && primaryComment.child) {
+            primaryComment.child.push(item)
+          }
+        }
+      })
+      this.commentPage = 1
+      this.commentList = primaryCommentList
+    },
+    // 查找回复的顶级评论
+    findPrimaryComment(res, parentId) {
+      const temp = res.find(item => item.comment_id === parseInt(parentId))
+      if (temp) {
+        if (temp.parent_id === null) {
+          return temp
+        }
+        return this.findPrimaryComment(res, temp.parent_id)
+      }
+      return null
+    },
+    // 分区切换
+    hanldeChange() {
+      const top1 = this.$refs.contentRef.offsetTop
+      const top2 = this.$refs.vanTabsRef.$el.offsetTop
+      window.scrollTo(0, top2 - top1 + 1)
+    },
+    // 发表评论
+    async handlePublish() {
+      const userId = window.localStorage.getItem('userId')
+      const userToken = window.localStorage.getItem('userToken')
+      if (!userId || !userToken) {
+        return this.$toast.fail('请先登录')
+      }
+      if (this.commentInput === '') {
+        return this.$toast.fail('评论不能为空')
+      }
+      const data = {
+        comment_content: this.commentInput,
+        comment_date: this.getDate(),
+        article_id: this.$route.params.id,
+        parent_id: null
+      }
+      const res = await publishCommentApi(userId, data)
+      if (res.status !== 200) {
+        return this.$toast.fail('发表评论失败')
+      }
+      this.$toast.fail('发表评论成功')
+      this.commentInput = ''
+      await this.getCommentList()
+      this.commentPage = Math.ceil(
+        this.commentList.length / this.commentPageSize
+      )
+      window.scrollTo(0, document.body.clientHeight)
+    },
+    // 获取日期
+    getDate() {
+      const date = new Date()
+      let m = date.getMonth() + 1
+      let d = date.getDate()
+      if (m < 10) {
+        m = '0' + m
+      }
+      if (d < 10) {
+        d = '0' + d
+      }
+      const dateStr = `${m}-${d}`
+      return dateStr
+    },
+    // 子组件点击回复
+    replyComment(item) {
+      const userId = window.localStorage.getItem('userId')
+      const userToken = window.localStorage.getItem('userToken')
+      if (!userId || !userToken) {
+        return this.$toast.fail('请先登录')
+      }
+      this.replyItem = item
+      const name = item.userinfo ? item.userinfo.name : '匿名'
+      this.replyLabel = `@${name}：`
+      this.scrollTop =
+        document.documentElement.scrollTop || document.body.scrollTop
+      this.$refs.replyRef.focus()
+    },
+    // 回复评论
+    async handleReply() {
+      const userId = window.localStorage.getItem('userId')
+      const userToken = window.localStorage.getItem('userToken')
+      if (!userId || !userToken) {
+        return this.$toast.fail('请先登录')
+      }
+      if (!this.replyItem.comment_id) {
+        return this.$toast.fail('请选择要回复的评论')
+      }
+      if (this.replyInput === '') {
+        return this.$toast.fail('回复不能为空')
+      }
+      const data = {
+        comment_content: this.replyInput,
+        comment_date: this.getDate(),
+        article_id: this.$route.params.id,
+        parent_id: this.replyItem.comment_id
+      }
+      const res = await publishCommentApi(userId, data)
+      if (res.status !== 200) {
+        return this.$toast.fail('回复评论失败')
+      }
+      this.$toast.fail('回复评论成功')
+      this.replyItem = {}
+      this.replyInput = ''
+      this.replyLabel = ''
+      this.getCommentList()
+      window.scrollTo(0, this.scrollTop)
     }
   },
   created() {
+    // 获取视频列表
     this.getVideoDetail()
+    // 获取推荐列表
     this.getRecommendList()
+    // 获取评论列表
+    this.getCommentList()
+    // 获取登录用户的信息
+    const userId = window.localStorage.getItem('userId')
+    const userToken = window.localStorage.getItem('userToken')
+    if (userId && userToken) {
+      this.getUserInfo()
+    }
   }
 }
 </script>
@@ -289,6 +480,44 @@ export default {
     p:first-child {
       margin-left: 6px;
     }
+  }
+}
+.publish-comment {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 10px 0px 10px;
+  img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+  .van-field {
+    flex: 1;
+  }
+  .van-button {
+    height: 30px;
+    padding: 0px 15px;
+    font-size: 14px;
+  }
+}
+
+.relpy-comment {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 10px 0px 10px;
+  .reply-label {
+    font-size: 14px;
+    color: #0a9ed3;
+  }
+  .van-field {
+    flex: 1;
+  }
+  .van-button {
+    height: 30px;
+    padding: 0px 15px;
+    font-size: 14px;
   }
 }
 </style>

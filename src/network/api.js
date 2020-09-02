@@ -38,3 +38,12 @@ export const getLikeStatusApi = (userId, params) => http.get(`/sub_scription/${u
 
 // 获取收藏状态
 export const getStarStatusApi = (userId, params) => http.get(`/collection/${userId}`, { params })
+
+// 获取评论列表
+export const getCommentListApi = videoId => http.get(`/comment/${videoId}`)
+
+// 发表评论
+export const publishCommentApi = (userId, data) => http.post(`/comment_post/${userId}`, data)
+
+// 搜索视频
+export const searchVideoApi = params => http.get('/search', { params })

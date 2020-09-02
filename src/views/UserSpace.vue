@@ -4,8 +4,11 @@
     <path-nav-bar :center="{ text: '个人空间', isScrollable: false }" />
     <!-- 内容区 -->
     <div class="user-space-content">
+      <!-- 背景图片 -->
       <div class="backImg"></div>
+      <!-- 用户信息 -->
       <user-info :user-info="userInfo" />
+      <!-- 用户动态和视频 -->
       <user-article />
     </div>
   </div>
@@ -27,6 +30,7 @@ export default {
     UserArticle
   },
   created() {
+    // 获取登录用户的信息
     this.getUserInfo()
   }
 }

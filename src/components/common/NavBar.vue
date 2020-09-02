@@ -1,11 +1,14 @@
 <template>
   <div class="nav-bar">
+    <!-- 左侧导航 -->
     <div class="nar-bar-left">
       <slot name="nar-bar-left"></slot>
     </div>
+    <!-- 中部导航 -->
     <div class="nar-bar-center">
       <slot name="nar-bar-center"></slot>
     </div>
+    <!-- 右侧导航 -->
     <div class="nar-bar-right">
       <slot name="nar-bar-right"></slot>
     </div>

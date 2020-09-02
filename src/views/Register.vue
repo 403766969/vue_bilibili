@@ -70,7 +70,7 @@
             @click="isShowRepeated = !isShowRepeated"
           />
         </div>
-        <van-button round block type="info" native-type="submit">注册</van-button>
+        <van-button round block type="info" color="#ff9db5" native-type="submit">注册</van-button>
       </van-form>
     </div>
   </div>
@@ -120,9 +120,11 @@ export default {
     }
   },
   methods: {
+    // 验证密码一致
     verifyRepeated(val) {
       return this.registerForm.password === val
     },
+    // 提交注册表单
     async handleSubmit(val) {
       const data = {
         name: val.fullname,
@@ -171,8 +173,6 @@ export default {
     width: 90%;
     font-size: 16px;
     color: #fff;
-    background-color: #ff9db5;
-    border: none;
   }
 }
 </style>

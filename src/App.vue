@@ -16,6 +16,7 @@ export default {
     }
   },
   methods: {
+    // 刷新路由
     reloadRouter() {
       this.isRouterAlive = false
       this.$nextTick(() => {
@@ -25,7 +26,7 @@ export default {
   },
   provide() {
     return {
-      reloadRouter: this.reloadRouter
+      reloadRouter: this.reloadRouter // 提供依赖
     }
   }
 }
